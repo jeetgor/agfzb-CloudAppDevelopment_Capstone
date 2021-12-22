@@ -5,7 +5,69 @@
     {% load static %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-    <body>
-    <!--Add a registration form here -->
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Dealership Review</a>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li {% if request.resolver_match.url_name == 'index' %} class="active" {% endif %}>
+          <a class="nav-link" href="{% url 'djangoapp:index' %}">Home
+            <span class="sr-only">(current)</span></a>
+        </li>
+        <li {% if request.resolver_match.url_name == 'about' %} class="active" {% endif %}>
+          <a class="nav-link" href="{% url 'djangoapp:about' %}">About Us</a>
+        </li>
+        <li {% if request.resolver_match.url_name == 'contact' %} class="active" {% endif %}>
+          <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact Us</a>
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+          <li>
+            <span class="navbar-text text-primary">({{ user.username }})</span>
+          </li>
+          <li>
+            <a class="nav-link text-primary" href="{% url 'djangoapp:logout' %}">Logout</a>
+          </li>
+        </ul>
+      {% else %}
+        <form class="form-inline my-2 my-lg-0" action="{% url 'djangoapp:login' %}" method="post">
+          {% csrf_token %}
+          <input class="form-control mr-sm-2" type="username" name="username" placeholder="Username" aria-label="Username">
+          <input class="form-control mr-sm-2" type="password" name="password" placeholder="Password" aria-label="Password">
+          <button class="btn btn-primary my-2 my-sm-0" type="submit">Login</button>
+          <a class="btn text-primary" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+        </form>
+      {% endif %}
+    </div>
+  </nav>
+
+    <form action="{% url 'djangoapp:registration' %}" method="post">
+        <div class="container">
+            {% csrf_token %}
+            <h1>Sign Up</h1>
+            <hr>
+            <div class="form-group">
+                <label for="username"><b>User Name</b></label>
+                <input type="text" class="form-control" placeholder="Enter User Name: " name="username" required>
+                <label for="firstname"><b>First Name</b></label>
+                <input type="text" class="form-control" placeholder="Enter First Name: " name="firstname" required>
+                <label for="lastname"><b>Last Name</b></label>
+                <input type="text" class="form-control" placeholder="Enter Last Name: " name="lastname" required>
+                <label for="password"><b>Password</b></label>
+                <input type="password" class="form-control" placeholder="Enter Password: " name="password" required>
+            </div>
+            {% if message %}
+            <div class="alert alert-warning">
+                {{ message }}
+            </div>
+            {% endif %}
+            <button class="btn btn-primary" type="submit">Sign up</button>
+        </div>
+    </form>
     </body>
 </html>
