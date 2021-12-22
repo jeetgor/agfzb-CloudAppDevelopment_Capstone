@@ -1,0 +1,45 @@
+{% extends 'djangoapp/index.html' %} {% block head %} {% endblock %} {% block content %} {% if reviews %}
+<h1 class="skeleton-heading">Reviews for {{ dealer_name }}</h1>{% else %}
+<h5>There is no reviews for {{ dealer_name }} yet, but you can be the first reviewer</h5>{% endif %} {% if user.is_authenticated %}
+<a href="{% url 'djangoapp:add_review' dealer_id dealer_name %}" class="btn bg-orange text-white my-auto ml-auto"><i
+        class="fas fa-pencil-alt"></i> Write a review</a> {% else %}
+<p class="lead">Please login to write a review.</p>{% endif %} {% if reviews %}
+<div class="row">
+    {% for review in reviews %}
+    <div class="col-lg-4 col-6 my-3">
+        <div class="card h-100 bg-orange text-white">
+            <p class="card-header bg-orange text-white">{{ review.name }}</p>
+            <div class="card-body bg-dark text-white">
+                <div class="row">
+                    <div class="col-3 text-left">
+                        {% if review.sentiment == "positive" %}
+                        <figure class="card-img" alt="Positive"><i class="far fa-3x text-success fa-grin"></i></figure>
+                        {% elif review.sentiment == "negative" %}
+                        <figure class="card-img" alt="Positive"><i class="far fa-3x text-danger fa-frown"></i></figure>
+                        {% elif review.sentiment == "neutral" %}
+                        <figure class="card-img" alt="Positive"><i class="far fa-3x text-warning fa-meh"></i></figure>
+                        {% else %}
+                        <figure class="card-img" alt="Positive"><i class="far fa-3x text-warning fa-meh"></i></figure>
+                        {% endif %}
+                    </div>
+                    <div class="col-9 text-right">
+                        {% if review.purchase == True %}
+                        <h5 class="card-title">{{ review.car_make }}, {{ review.car_model }}</h5>
+                        <h5 class="card-title">{{ review.car_year }}</h5>
+                        {% else %}
+                        <h5 class="card-title">Not purchased</h5>
+                        <h5 class="card-title">No additional info</h5>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="card-text font-italic">"{{ review.review }}"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %} {% endblock %}

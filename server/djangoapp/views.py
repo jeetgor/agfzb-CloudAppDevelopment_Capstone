@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
+from .models import CarModel
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -15,7 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 # Create your views here.
-
+# Cloud function url
+CF_URL = "https://ff2978a1.au-syd.apigw.appdomain.cloud"
 
 def about(request):
     """ About View"""
@@ -85,14 +88,25 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
+        # Get dealers from the URL
+        dealerships = get_dealers_from_cf('https://06e36d79.us-south.apigw.appdomain.cloud/api/dealerships')
+        context['dealerships'] = dealerships
         return render(request, 'djangoapp/index.html', context)
 
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-# ...
+def get_dealer_details(request, dealer_id):
+    """ Dealerships Details """
+    if request.method == "GET":
+        dealer_reviews = get_dealer_reviews_from_cf(dealer_id)
+        context = {
+            "dealer_id": dealer_id,
+            "reviews": dealer_reviews
+        }
+        dealer_details_view = render(
+            request, 'djangoapp/review.html', context)
+    return dealer_details_view
 
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
-
