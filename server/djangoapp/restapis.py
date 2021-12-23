@@ -63,35 +63,43 @@ def get_dealers_from_cf(url, **kwargs):
     return results
 
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
-def get_dealer_reviews_from_cf(dealerId):
+def get_dealer_reviews_from_cf(url, **kwargs):
     """ Get Reviews"""
     results = []
-    json_result = get_request('https://06e36d79.us-south.apigw.appdomain.cloud/api/reviews', dealerId=dealerId)
+    json_result = get_request(url)
     if json_result:
         reviews = json_result["entries"]
-        for review_doc in reviews:
-            sentiment = analyze_review_sentiments(review_doc["review"])
-            dealer_review = DealerReview(
-                id=review_doc["id"],
-                name=review_doc["name"],
-                dealership=review_doc["dealership"],
-                review=review_doc["review"],
-                purchase=review_doc["purchase"],
-                purchase_date=review_doc["purchase_date"],
-                car_make=review_doc["car_make"],
-                car_model=review_doc["car_model"],
-                car_year=review_doc["car_year"],
-                sentiment=sentiment)
+
+        for review in reviews:
+            dealer_review = DealerReview(id=review["id"],
+                                        name=review["name"],
+                                        dealership=review["dealership"],
+                                        review=review["review"],
+                                        purchase=review["purchase"],
+                                        purchase_date=review["purchase_date"],
+                                        car_make=review["car_make"],
+                                        car_model=review["car_model"],
+                                        car_year=review["car_year"],
+                sentiment=analyze_review_sentiments(review.get("review", "")))
             results.append(dealer_review)
     return results
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 def analyze_review_sentiments(text):
-    """ Sentiment Analyze """
-    #NLU_URL = "https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/817c5ca5-adff-4b02-a2fe-8810bae23791"
-    NLU_API_KEY = "DhhpNPiS6uA0vd3pUHZIopsJryHq4UdMvhuXS6aZPzV5"
+# - Call get_request() with specified arguments
+# - Get the returned sentiment label such as Positive or Negative
+    # Natural language understanding url
+    NLU_API_KEY = "NDMLH1CZRVTiQ7zLrWbuonhYiLEyfZhiZF7AbfKubWeR"
 
-    json_result = get_request("https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/817c5ca5-adff-4b02-a2fe-8810bae23791",api_key=NLU_API_KEY, text=text)
-    if json_result:
-        sentiment_result = json_result.get('label', 'neutral')
-    return sentiment_result
+    # Call get_request with a URL parameter
+    json_result = get_request("https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/817c5ca5-adff-4b02-a2fe-8810bae23791/v1/analyze", 
+                                api_key=NLU_API_KEY, 
+                                text=text, 
+                                version="2021-08-01",
+                                features= {
+                                    "sentiment": {},
+                                },
+                                return_analyzed_text=True)
+    if json_result and "sentiment" in json_result:
+        sentiment = json_result["sentiment"]["document"]["label"]
+        return sentiment
