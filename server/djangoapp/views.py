@@ -137,7 +137,7 @@ def add_dealer_review(request, dealer_id, dealer_name):
             review["car_year"] = car.year
         json_result = add_dealer_review_to_db(review)
         add_review_view = redirect(
-            'djangoapp:dealer_reviews', dealer_id=dealer_id, dealer_name=dealer_name)
+            'djangoapp:dealer_details', dealer_id=dealer_id)
     return add_review_view
 
 
