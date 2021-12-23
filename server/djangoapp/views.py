@@ -67,8 +67,8 @@ def registration_request(request):
         # Check if user exists
         username = request.POST['username']
         password = request.POST['password']
-        first_name = request.POST['firstname']
-        last_name = request.POST['lastname']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
         user_exist = False
         try:
             User.objects.get(username=username)
@@ -113,12 +113,12 @@ def get_dealer_details(request, dealer_id):
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
-def add_dealer_review(request, dealer_id, dealer_name):
+def add_dealer_review(request, dealer_id):
     """ Add Review View """
     if request.method == "GET":
         cars = CarModel.objects.filter(dealer_id=dealer_id)
-        context = {"cars": cars, "dealer_id": dealer_id,
-                   "dealer_name": dealer_name}
+        context = {"cars": cars, "dealer_id": dealer_id
+                   }
         add_review_view = render(request, 'djangoapp/add_review.html', context)
     if request.method == "POST" and request.user.is_authenticated:
         form = request.POST

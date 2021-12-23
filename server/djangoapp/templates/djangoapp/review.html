@@ -1,7 +1,7 @@
 {% extends 'djangoapp/index.html' %} {% block head %} {% endblock %} {% block content %} {% if reviews %}
 <h1 class="skeleton-heading">Reviews for {{ dealer_name }}</h1>{% else %}
 <h5>There is no reviews for {{ dealer_name }} yet, but you can be the first reviewer</h5>{% endif %} {% if user.is_authenticated %}
-<a href="{% url 'djangoapp:add_review' dealer_id dealer_name %}" class="btn bg-orange text-white my-auto ml-auto"><i
+<a href="{% url 'djangoapp:add_review' dealer_id %}" class="btn bg-orange text-white my-auto ml-auto"><i
         class="fas fa-pencil-alt"></i> Write a review</a> {% else %}
 <p class="lead">Please login to write a review.</p>{% endif %} {% if reviews %}
 <div class="row">
