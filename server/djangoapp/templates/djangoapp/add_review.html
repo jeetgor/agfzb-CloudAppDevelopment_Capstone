@@ -4,7 +4,7 @@
     <div class="col-12 col-lg-6 offset-lg-3 p-2 h-100 d-flex  bg-dark text-white">
         <div class="card-body bg-dark text-white">
             {% if user.is_authenticated %}
-            <form action="{% url 'djangoapp:add_review' dealer_id dealer_name %}" method="POST">
+            <form action="{% url 'djangoapp:add_review' dealer_id %}" method="POST">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="fullname">Full Name</label>
