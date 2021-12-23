@@ -31,6 +31,14 @@ def get_request(url, **kwargs):
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
+def post_request(url, json_payload, **kwargs):
+    """ Post"""
+    try:
+        response = requests.post(url, json=json_payload, params=kwargs)
+    except:
+        print("Network exception occurred")
+    json_data = json.loads(response.text)
+    return json_data
 
 
 #  Create a get_dealers_from_cf method to get dealers from a cloud function
@@ -83,6 +91,22 @@ def get_dealer_reviews_from_cf(url, **kwargs):
                 sentiment=analyze_review_sentiments(review.get("review", "")))
             results.append(dealer_review)
     return results
+
+
+def add_dealer_review_to_db(review_post):
+    """ Add Review """
+    review = {
+        "id": review_post['review_id'],
+        "name": review_post['reviewer_name'],
+        "dealership": review_post['dealership'],
+        "review": review_post['review'],
+        "purchase": review_post.get('purchase', False),
+        "purchase_date": review_post.get('purchase_date'),
+        "car_make": review_post.get('car_make'),
+        "car_model": review_post.get('car_model'),
+        "car_year": review_post.get('car_year')
+    }
+    return post_request('https://06e36d79.us-south.apigw.appdomain.cloud/api/review-post', review)
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 def analyze_review_sentiments(text):

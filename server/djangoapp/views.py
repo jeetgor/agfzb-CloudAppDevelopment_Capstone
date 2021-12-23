@@ -5,12 +5,13 @@ from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
 # from .restapis import related methods
 from .models import CarModel
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, add_dealer_review_to_db
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+import random
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -18,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 # Cloud function url
-CF_URL = "https://ff2978a1.au-syd.apigw.appdomain.cloud"
 
 def about(request):
     """ About View"""
@@ -113,8 +113,32 @@ def get_dealer_details(request, dealer_id):
         return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_dealer_review(request, dealer_id, dealer_name):
+    """ Add Review View """
+    if request.method == "GET":
+        cars = CarModel.objects.filter(dealer_id=dealer_id)
+        context = {"cars": cars, "dealer_id": dealer_id,
+                   "dealer_name": dealer_name}
+        add_review_view = render(request, 'djangoapp/add_review.html', context)
+    if request.method == "POST" and request.user.is_authenticated:
+        form = request.POST
+        review = {
+            "review_id": random.randint(0, 100),
+            "reviewer_name": form["fullname"],
+            "dealership": dealer_id,
+            "review": form["review"]
+        }
+        if form.get("purchase"):
+            review["purchase"] = True
+            review["purchase_date"] = form["purchasedate"]
+            car = get_object_or_404(CarModel, pk=form["car"])
+            review["car_make"] = car.carmake.name
+            review["car_model"] = car.name
+            review["car_year"] = car.year
+        json_result = add_dealer_review_to_db(review)
+        add_review_view = redirect(
+            'djangoapp:dealer_reviews', dealer_id=dealer_id, dealer_name=dealer_name)
+    return add_review_view
 
 
 def get_dealer_detail_infos(dealer_id):
